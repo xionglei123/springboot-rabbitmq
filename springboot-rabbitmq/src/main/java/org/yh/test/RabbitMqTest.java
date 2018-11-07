@@ -2,6 +2,9 @@ package org.yh.test;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.amqp.core.AmqpAdmin;
+import org.springframework.amqp.core.Binding;
+import org.springframework.amqp.core.DirectExchange;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -13,6 +16,30 @@ public class RabbitMqTest {
 
 	@Autowired
 	private MsgSender sender;
+
+	@Autowired
+	AmqpAdmin amqpAdmin;
+
+	@Test
+	public void createExchange() {
+		amqpAdmin.declareExchange(new DirectExchange("amqp.exchange"));
+		System.out.println("创建一个direct交换机完成");
+	}
+
+	@Test
+	public void createQueue() {
+		// String x = amqpAdmin.declareQueue(new Queue("amqpadmin.queue", true));
+		// System.out.println("创建一个queue完成" + x);
+		amqpAdmin.declareBinding(
+				new Binding("amqpadmin.queue", Binding.DestinationType.QUEUE, "amqp.exchange", "amqp.mytest", null));
+		System.out.println("绑定成功");
+	}
+	
+	@Test
+	public void delete() {
+		amqpAdmin.deleteQueue("fanout.C");
+		System.out.println("删除队列成功！");
+	}
 
 	@Test
 	public void hello() throws Exception {
