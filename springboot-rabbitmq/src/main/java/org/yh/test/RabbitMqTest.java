@@ -1,12 +1,17 @@
 package org.yh.test;
 
+import java.util.concurrent.TimeUnit;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.AmqpAdmin;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.DirectExchange;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.yh.service.MsgSender;
 
@@ -14,11 +19,16 @@ import org.yh.service.MsgSender;
 @SpringBootTest
 public class RabbitMqTest {
 
+	Logger log = LoggerFactory.getLogger(RabbitMqTest.class);
+
+	@Autowired
+	private StringRedisTemplate redisTemplate;
+
 	@Autowired
 	private MsgSender sender;
 
 	@Autowired
-	AmqpAdmin amqpAdmin;
+	private AmqpAdmin amqpAdmin;
 
 	@Test
 	public void createExchange() {
@@ -34,7 +44,7 @@ public class RabbitMqTest {
 				new Binding("amqpadmin.queue", Binding.DestinationType.QUEUE, "amqp.exchange", "amqp.mytest", null));
 		System.out.println("绑定成功");
 	}
-	
+
 	@Test
 	public void delete() {
 		amqpAdmin.deleteQueue("fanout.C");
@@ -60,4 +70,14 @@ public class RabbitMqTest {
 	public void fanout() throws Exception {
 		sender.fanout("广播：狼来了。。");
 	}
+
+	@Test
+	public void redisSetnx() {
+		String key = "mytest";
+		if (!redisTemplate.hasKey(key)) {
+			redisTemplate.opsForValue().set(key, Thread.currentThread().getName(), 30, TimeUnit.MINUTES);
+			System.out.println("设置成功");
+		}
+	}
+
 }
