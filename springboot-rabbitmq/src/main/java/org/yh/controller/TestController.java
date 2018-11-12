@@ -16,6 +16,14 @@ public class TestController {
 
 	@RequestMapping("testage")
 	public String test2(@RequestParam(value = "age") int age) {
+		// 创建一个线程
+//		new Thread(new Runnable() {
+//			@Override
+//			public void run() {
+//
+//			}
+//		}).start();
+
 		return "年龄为:" + age;
 	}
 }
